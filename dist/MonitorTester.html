@@ -331,7 +331,7 @@ var MT = (function () {
   for (var ni = 0; ni <= 1023; ni++) NUM_STR.push(('    ' + ni).slice(-5));
   var PPM_COMMENT = '# This PPM is created by MonitorTester';
 
-  // One pixel per line: "R G B\n" with padded samples.
+  // One pixel per line: "B G R\n" with padded samples (R and B swapped on purpose).
   function encodePPM3(buf, w, h) {
     var LIMIT = 1 << 20, chunks = [], cur = [], curLen = 0;
     cur.push('P3\n' + PPM_COMMENT + '\n' + w + ' ' + h + '\n1023\n');
@@ -339,7 +339,7 @@ var MT = (function () {
     for (var y = 0; y < h; y++) {
       var parts = new Array(w), base = y * w * 3;
       for (var x = 0, i = base; x < w; x++, i += 3) {
-        parts[x] = NUM_STR[buf[i]] + ' ' + NUM_STR[buf[i + 1]] + ' ' + NUM_STR[buf[i + 2]] + '\n';
+        parts[x] = NUM_STR[buf[i + 2]] + ' ' + NUM_STR[buf[i + 1]] + ' ' + NUM_STR[buf[i]] + '\n';
       }
       var line = parts.join('');
       if (curLen + line.length > LIMIT && cur.length) {
