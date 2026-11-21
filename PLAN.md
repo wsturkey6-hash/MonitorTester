@@ -57,7 +57,7 @@ Rmask=0x3FF00000, Gmask=0x000FFC00, Bmask=0x000003FF, Amask=0, CSType=0x73524742
 endpoints 36B=0, gammaRGB=0×3, intent=4, profileData=0, profileSize=0, reserved=0。
 像素 uint32 = `(R<<20)|(G<<10)|B`（無號，高 2 bits=0），由下往上。
 
-**PPM P3**：`"P3\n# This PPM is created by MonitorTester\n{W} {H}\n1023\n"`，之後每個像素一行（由左而右、由上而下）：R、G、B 各自靠右對齊寬 5 字元、以單一空白分隔、行尾 `\n`，例 `   64    64    64`。
+**PPM P3**：`"P3\n# This PPM is created by MonitorTester\n{W} {H}\n1023\n"`，之後每個像素一行（由左而右、由上而下）：依序為 **B、G、R**（刻意將 R 與 B 互換，非標準 PPM 的 RGB 順序），各自靠右對齊寬 5 字元、以單一空白分隔、行尾 `\n`，例 R=64,G=104,B=1023 輸出為 ` 1023   104    64`。
 
 ## UI（index.html）
 - 左側控制面板：圖樣下拉 → 動態參數欄位（int: number input；color10: 3 個 0..1023 數字框＋8-bit `<input type=color>` 同步換算 `round(v8*1023/255)`；bool: checkbox）。
@@ -74,7 +74,7 @@ endpoints 36B=0, gammaRGB=0×3, intent=4, profileData=0, profileSize=0, reserved
 - hgray 頭尾 0/1023、W=1920 時 x=959 的值；steps n=4 各段值；border 外圈與十字位置（奇偶寬）；checker 左上白；bars 8 段顏色；rgbramp 三帶
 - BMP24：W=1,2,3,4,5 的 stride/檔案大小、header 每個欄位、底列先存、BGR 順序
 - BMP30：header 124B 各欄位與 masks、像素打包（例 R=1023,G=0,B=1 → 0x3FF00001）
-- PPM3：header（含註解行）、行數=W×H、每行一像素且格式逐字正確、內容可 parse 回原 buffer；分段串接正確
+- PPM3：header（含註解行）、行數=W×H、每行一像素且為 B G R 順序、格式逐字正確、內容可 parse 回原 buffer；分段串接正確
 - `to8` 0→0, 1023→255, 512→128
 - 參數正規化：color [2000,-5,1023.7] → [1023,0,1023]；steps n=0→2、n=5000→1024；checker size=0→1；border width=0→1、2.6→3；NaN→default；渲染後 buffer 所有值為 0..1023 整數；renderPattern 對 W=0、W=7681、W=1.5 拋 RangeError
 - 以正規化後極值色產生的 BMP30/PPM 中無任何樣本 >1023

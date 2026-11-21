@@ -12,7 +12,7 @@
 - **下載**：
   - BMP 24-bit（8 bpc）
   - BMP 30-bit（10 bpc，32bpp BI_BITFIELDS，2-10-10-10）
-  - PPM P3（ASCII，maxval 1023，每像素一行）
+  - PPM P3（ASCII，maxval 1023，每像素一行，通道順序為 **B G R**，與標準 PPM 的 R G B 相反）
 
 圖樣內部以 10-bit 產生；預覽與全螢幕受瀏覽器限制為 8-bit，10-bit 精度僅存在於下載檔。
 
