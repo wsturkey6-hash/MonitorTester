@@ -31,7 +31,7 @@
 - `to8(v)`
 - `encodeBMP24(buf,w,h)` → `Uint8Array`
 - `encodeBMP30(buf,w,h)` → `Uint8Array`
-- `encodePPM3(buf,w,h)` → `string[]`（分段，每段至多約 1MB 字元，含整數列；串接即完整檔）
+- `encodePPM3(buf,w,h,order='bgr')`（order 為 `'rgb'` 或 `'bgr'`，其他值丟 RangeError）→ `string[]`（分段，每段至多約 1MB 字元，含整數列；串接即完整檔）
 - `filename(id,w,h,ext)`
 
 ## 圖樣規格（x∈[0,W)、y∈[0,H)，`ramp(i,n) = n<=1 ? 0 : Math.round(i*1023/(n-1))`）
@@ -57,14 +57,14 @@ Rmask=0x3FF00000, Gmask=0x000FFC00, Bmask=0x000003FF, Amask=0, CSType=0x73524742
 endpoints 36B=0, gammaRGB=0×3, intent=4, profileData=0, profileSize=0, reserved=0。
 像素 uint32 = `(R<<20)|(G<<10)|B`（無號，高 2 bits=0），由下往上。
 
-**PPM P3**：`"P3\n# This PPM is created by MonitorTester\n{W} {H}\n1023\n"`，之後每個像素一行（由左而右、由上而下）：依序為 **B、G、R**（刻意將 R 與 B 互換，非標準 PPM 的 RGB 順序），各自靠右對齊寬 5 字元、以單一空白分隔、行尾 `\n`，例 R=64,G=104,B=1023 輸出為 ` 1023   104    64`。
+**PPM P3**：`"P3\n# This PPM is created by MonitorTester\n{W} {H}\n1023\n"`，之後每個像素一行（由左而右、由上而下）：依 `order` 為 **B、G、R**（預設，刻意將 R 與 B 互換）或 **R、G、B**（標準 PPM），各自靠右對齊寬 5 字元、以單一空白分隔、行尾 `\n`，例 R=64,G=104,B=1023 輸出為 ` 1023   104    64`。
 
 ## UI（index.html）
 - 左側控制面板：圖樣下拉 → 動態參數欄位（int: number input；color10: 3 個 0..1023 數字框＋8-bit `<input type=color>` 同步換算 `round(v8*1023/255)`；bool: checkbox）。
 - 解析度：預設下拉（1920×1080、2560×1440、3440×1440、3840×2160、1280×720、目前螢幕 = `round(screen.width*dpr)×round(screen.height*dpr)`、自訂）＋寬/高輸入。
 - 預覽：canvas 以實際 W×H 繪製（8-bit ImageData），CSS 等比縮放適應容器；放大時 `image-rendering: pixelated`。參數變更後自動重繪（debounce ~150ms）。
 - 「全螢幕 1:1」：全螢幕黑底容器內 canvas，CSS 尺寸 = W/dpr × H/dpr，左上對齊，`image-rendering: pixelated`；Esc／點擊離開。
-- 下載：格式下拉（BMP 24-bit 預設／BMP 30-bit／PPM P3 10-bit）＋按鈕；用 Blob + `<a download>`；PPM 以 `new Blob(chunks)`。產生期間按鈕停用並顯示「產生中…」。
+- 下載：格式下拉（BMP 24-bit 預設／BMP 30-bit／PPM P3 10-bit）＋按鈕；用 Blob + `<a download>`；PPM 以 `new Blob(chunks)`；選 PPM 時另顯示「PPM 通道順序」下拉（B G R 預設／R G B）。產生期間按鈕停用並顯示「產生中…」。
 - 註明 8-bit 預覽限制、P3 大檔警示（4K 約 150MB）。
 
 ## Slices
