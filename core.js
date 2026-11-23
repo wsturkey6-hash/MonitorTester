@@ -229,15 +229,18 @@ var MT = (function () {
   for (var ni = 0; ni <= 1023; ni++) NUM_STR.push(('    ' + ni).slice(-5));
   var PPM_COMMENT = '# This PPM is created by MonitorTester';
 
-  // One pixel per line: "B G R\n" with padded samples (R and B swapped on purpose).
-  function encodePPM3(buf, w, h) {
+  // One pixel per line with padded samples. order: 'bgr' (default) -> "B G R\n", 'rgb' -> "R G B\n".
+  function encodePPM3(buf, w, h, order) {
+    if (order === undefined) order = 'bgr';
+    if (order !== 'rgb' && order !== 'bgr') throw new RangeError('PPM channel order must be "rgb" or "bgr"');
+    var o0 = order === 'rgb' ? 0 : 2, o2 = 2 - o0;
     var LIMIT = 1 << 20, chunks = [], cur = [], curLen = 0;
     cur.push('P3\n' + PPM_COMMENT + '\n' + w + ' ' + h + '\n1023\n');
     curLen = cur[0].length;
     for (var y = 0; y < h; y++) {
       var parts = new Array(w), base = y * w * 3;
       for (var x = 0, i = base; x < w; x++, i += 3) {
-        parts[x] = NUM_STR[buf[i + 2]] + ' ' + NUM_STR[buf[i + 1]] + ' ' + NUM_STR[buf[i]] + '\n';
+        parts[x] = NUM_STR[buf[i + o0]] + ' ' + NUM_STR[buf[i + 1]] + ' ' + NUM_STR[buf[i + o2]] + '\n';
       }
       var line = parts.join('');
       if (curLen + line.length > LIMIT && cur.length) {

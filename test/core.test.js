@@ -216,6 +216,18 @@ test('PPM3 header, lines, round trip, chunking', () => {
   assert.deepStrictEqual(parsed, Array.from(big));
 });
 
+test('PPM3 channel order option', () => {
+  const px = new Uint16Array([64, 104, 1023]);
+  const line = (o) => MT.encodePPM3(px, 1, 1, o).join('').split('\n')[4];
+  assert.strictEqual(line('rgb'), '   64   104  1023');
+  assert.strictEqual(line('bgr'), ' 1023   104    64');
+  assert.strictEqual(line(), line('bgr'));
+  assert.throws(() => MT.encodePPM3(px, 1, 1, 'grb'), RangeError);
+  const w = 6, h = 4, buf = sampleBuf(w, h);
+  const nums = MT.encodePPM3(buf, w, h, 'rgb').join('').split('\n').slice(4).join(' ').trim().split(/\s+/).map(Number);
+  assert.deepStrictEqual(nums, Array.from(buf));
+});
+
 test('parameter normalization', () => {
   const n = MT.normalizeParams;
   assert.deepStrictEqual(n('solid', { color: [2000, -5, 1023.7] }).color, [1023, 0, 1023]);
