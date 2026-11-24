@@ -12,7 +12,7 @@
 - **下載**：
   - BMP 24-bit（8 bpc）
   - BMP 30-bit（10 bpc，32bpp BI_BITFIELDS，2-10-10-10）
-  - PPM P3（ASCII，maxval 1023，每像素一行，通道順序可選 **B G R**（預設）或 **R G B**（標準 PPM））
+  - PPM P3（ASCII，maxval 1023，每像素一行，通道順序可選 **R G B**（預設，標準 PPM）或 **B G R**）
 
 圖樣內部以 10-bit 產生；預覽與全螢幕受瀏覽器限制為 8-bit，10-bit 精度僅存在於下載檔。
 
@@ -31,3 +31,7 @@ node build.js    # 重新打包單一檔案
 ```
 
 修改 `index.html` 或 `core.js` 後記得重新執行 `node build.js`。
+
+## 授權
+
+[MIT](LICENSE)
