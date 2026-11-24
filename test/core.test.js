@@ -199,21 +199,18 @@ test('PPM3 header, lines, round trip, chunking', () => {
   assert.strictEqual(lines.pop(), '');
   assert.strictEqual(lines.length, 4 + w * h);
   const pad = (v) => String(v).padStart(5, ' ');
-  // one pixel per line in B G R order, each sample right-aligned to width 5, single-space separated
+  // default: one pixel per line in R G B order, each sample right-aligned to width 5, single-space separated
   lines.slice(4).forEach((l, p) => {
-    assert.strictEqual(l, pad(buf[p * 3 + 2]) + ' ' + pad(buf[p * 3 + 1]) + ' ' + pad(buf[p * 3]));
+    assert.strictEqual(l, pad(buf[p * 3]) + ' ' + pad(buf[p * 3 + 1]) + ' ' + pad(buf[p * 3 + 2]));
   });
-  // buffer R=64 G=104 B=1023 -> line "B G R"
-  assert.strictEqual(MT.encodePPM3(new Uint16Array([64, 104, 1023]), 1, 1).join('').split('\n')[4], ' 1023   104    64');
+  assert.strictEqual(MT.encodePPM3(new Uint16Array([64, 104, 1023]), 1, 1).join('').split('\n')[4], '   64   104  1023');
   // multi-chunk: large image splits and concatenation still parses
   const W = 1500, H = 400, big = sampleBuf(W, H), bc = MT.encodePPM3(big, W, H);
   assert.ok(bc.length > 1);
   assert.ok(bc.every((c) => c.length <= 1.2 * 1024 * 1024));
   const bl = bc.join('').split('\n');
   assert.strictEqual(bl.length, 4 + W * H + 1);
-  const parsed = bl.slice(4, 4 + W * H).join(' ').trim().split(/\s+/).map(Number);
-  for (let i = 0; i < parsed.length; i += 3) { const t = parsed[i]; parsed[i] = parsed[i + 2]; parsed[i + 2] = t; }
-  assert.deepStrictEqual(parsed, Array.from(big));
+  assert.deepStrictEqual(bl.slice(4, 4 + W * H).join(' ').trim().split(/\s+/).map(Number), Array.from(big));
 });
 
 test('PPM3 channel order option', () => {
@@ -221,10 +218,11 @@ test('PPM3 channel order option', () => {
   const line = (o) => MT.encodePPM3(px, 1, 1, o).join('').split('\n')[4];
   assert.strictEqual(line('rgb'), '   64   104  1023');
   assert.strictEqual(line('bgr'), ' 1023   104    64');
-  assert.strictEqual(line(), line('bgr'));
+  assert.strictEqual(line(), line('rgb'));
   assert.throws(() => MT.encodePPM3(px, 1, 1, 'grb'), RangeError);
   const w = 6, h = 4, buf = sampleBuf(w, h);
-  const nums = MT.encodePPM3(buf, w, h, 'rgb').join('').split('\n').slice(4).join(' ').trim().split(/\s+/).map(Number);
+  const nums = MT.encodePPM3(buf, w, h, 'bgr').join('').split('\n').slice(4).join(' ').trim().split(/\s+/).map(Number);
+  for (let i = 0; i < nums.length; i += 3) { const t = nums[i]; nums[i] = nums[i + 2]; nums[i + 2] = t; }
   assert.deepStrictEqual(nums, Array.from(buf));
 });
 

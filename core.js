@@ -229,9 +229,9 @@ var MT = (function () {
   for (var ni = 0; ni <= 1023; ni++) NUM_STR.push(('    ' + ni).slice(-5));
   var PPM_COMMENT = '# This PPM is created by MonitorTester';
 
-  // One pixel per line with padded samples. order: 'bgr' (default) -> "B G R\n", 'rgb' -> "R G B\n".
+  // One pixel per line with padded samples. order: 'rgb' (default) -> "R G B\n", 'bgr' -> "B G R\n".
   function encodePPM3(buf, w, h, order) {
-    if (order === undefined) order = 'bgr';
+    if (order === undefined) order = 'rgb';
     if (order !== 'rgb' && order !== 'bgr') throw new RangeError('PPM channel order must be "rgb" or "bgr"');
     var o0 = order === 'rgb' ? 0 : 2, o2 = 2 - o0;
     var LIMIT = 1 << 20, chunks = [], cur = [], curLen = 0;
